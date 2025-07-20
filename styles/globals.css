@@ -1,0 +1,170 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;400&family=Inter:wght@400;500;700&display=swap');
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Chat demo specific styles */
+.chat-demo-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 60vh;
+  max-height: 75vh;
+  height: 65vh;
+  background: #2F2F2F;
+}
+
+.chat-demo-messages {
+  flex: 1 1 0%;
+  overflow-y: auto;
+}
+
+/* Chatbot YAML output styles */
+.yaml-header {
+  color: #018444;
+  font-weight: bold;
+}
+.yaml-value {
+  color: #D62E74;
+}
+.bot-bubble {
+  background: #171717;
+  color: #D62E74;
+  font-weight: 500;
+  box-shadow: 0 0 8px #17171755;
+}
+
+/* User message styles */
+.user-message {
+  background: #2F2F2F;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* User input textarea style */
+.chat-demo-window textarea {
+  color: #fff;
+  background: #2F2F2F;
+}
+
+.font-inter {
+  font-family: 'Inter', system-ui, Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.bot-bubble, .user-message, .chat-demo-messages, .chat-demo-window textarea {
+  font-family: 'Inter', system-ui, Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Keep JetBrains Mono for header */
+.font-jetbrains {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+h1 .text-2xl {
+  font-size: 1.25rem;
+  vertical-align: top;
+}
+
+/* Send button styles */
+.send-btn {
+  background: #009BD9;
+  color: #171717;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.send-btn:hover:not(:disabled) {
+  background: #007bb0;
+}
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- 8-bit Floating Blocks Background --- */
+.bg-green-gradient {
+  /* Light green vertical gradient */
+  background: linear-gradient(180deg, #e6ffe6 0%, #b6fcb6 100%);
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.floating-blocks {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pixel-block {
+  position: absolute;
+  /* 8-bit sizes, set via inline style or JS: 16px, 24px, 32px, 40px, 48px, 56px, 64px */
+  width: 32px;
+  height: 32px;
+  background: #a3e6a3; /* Slightly darker green than bg */
+  box-shadow:
+    inset 0 2px 6px #7fc97f,
+    inset 0 -2px 8px #6bb36b,
+    0 1px 0 #b6fcb6;
+  image-rendering: pixelated;
+  border-radius: 0;
+  /* Crisp edges */
+  outline: 1px solid #b6fcb6;
+  opacity: 0.85;
+  transition: opacity 0.3s;
+}
+
+/* Animation keyframes for upward floating */
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh);
+    opacity: 0.7;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-64px);
+    opacity: 0.2;
+  }
+}
+
+/* Example: JS should set animation-duration (15-30s) and left/top/size per block */
+.pixel-block {
+  animation-name: float-up;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+}
+
+/* Optional: pixelated look for all blocks */
+.pixel-block, .floating-blocks {
+  image-rendering: pixelated;
+}
+
+/* --- End 8-bit Floating Blocks Background --- */
