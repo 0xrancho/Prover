@@ -2,39 +2,36 @@
 /**
  * ROUTER TEST SCRIPT
  *
- * Tests just the router logic without requiring API keys.
+ * Tests confirmation/cancellation detection.
+ * Mode detection has been removed - planner decides tools directly.
+ *
  * Run with: node scripts/test-router.js
  */
 
-import { detectMode, detectBuildSubtype, detectAskChunkTypes } from '../lib/orchestrator/router.js';
+import { isConfirmation, isCancellation } from '../lib/orchestrator/router.js';
 
 // =============================================
 // TEST CASES
 // =============================================
 
-const TEST_CASES = [
-  // ASK mode tests
-  { message: 'What pain points do medical device companies typically have?', expectedMode: 'ask' },
-  { message: 'Who is our ideal customer?', expectedMode: 'ask' },
-  { message: 'Show me proof points from our healthcare case studies', expectedMode: 'ask' },
-  { message: 'What problems does the healthcare industry face?', expectedMode: 'ask' },
-  { message: 'How did we help similar clients?', expectedMode: 'ask' },
+const CONFIRM_TESTS = [
+  { message: 'yes', expected: true },
+  { message: 'y', expected: true },
+  { message: 'ok', expected: true },
+  { message: 'sure', expected: true },
+  { message: 'looks good', expected: true },
+  { message: 'Yes, do it', expected: true },
+  { message: 'no', expected: false },
+  { message: 'What pain points?', expected: false },
+];
 
-  // BUILD mode tests
-  { message: 'Just met with Sarah Chen, CTO at TechFlow', expectedMode: 'build' },
-  { message: 'Add Acme Corp to my prospects', expectedMode: 'build' },
-  { message: 'Create a new lead for GlobalTech', expectedMode: 'build' },
-  { message: 'Find me companies similar to our MedTech clients', expectedMode: 'build' },
-  { message: 'Build a list of healthcare prospects', expectedMode: 'build' },
-  { message: 'Save this company to CRM', expectedMode: 'build' },
-  { message: 'I talked to the VP of Engineering at StartupCo', expectedMode: 'build' },
-
-  // ENRICH mode tests
-  { message: 'Tell me about Acme Corporation', expectedMode: 'enrich' },
-  { message: 'Enrich the prospect Globex Inc', expectedMode: 'enrich' },
-  { message: 'Research this company for me', expectedMode: 'enrich' },
-  { message: 'Look up company details for TechCorp', expectedMode: 'enrich' },
-  { message: 'Get company details on MegaCorp', expectedMode: 'enrich' },
+const CANCEL_TESTS = [
+  { message: 'no', expected: true },
+  { message: 'cancel', expected: true },
+  { message: 'nevermind', expected: true },
+  { message: "don't do that", expected: true },
+  { message: 'yes', expected: false },
+  { message: 'Add this lead', expected: false },
 ];
 
 // =============================================
@@ -42,37 +39,29 @@ const TEST_CASES = [
 // =============================================
 
 console.log('\n' + '═'.repeat(70));
-console.log('  ROUTER TEST SUITE');
+console.log('  ROUTER TEST SUITE (Confirmation Detection Only)');
+console.log('  Note: Mode detection removed - planner reasons directly');
 console.log('═'.repeat(70) + '\n');
 
 let passed = 0;
 let failed = 0;
 
-for (const test of TEST_CASES) {
-  const mode = detectMode(test.message);
-  const ok = mode === test.expectedMode;
-
+console.log('CONFIRMATION TESTS:');
+for (const test of CONFIRM_TESTS) {
+  const result = isConfirmation(test.message);
+  const ok = result === test.expected;
   const icon = ok ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m';
-  const modeColor = ok ? '\x1b[32m' : '\x1b[31m';
+  console.log(`${icon} "${test.message}" → ${result} (expected: ${test.expected})`);
+  if (ok) passed++; else failed++;
+}
 
-  console.log(`${icon} ${test.expectedMode.toUpperCase().padEnd(7)} → ${modeColor}${mode.toUpperCase().padEnd(7)}\x1b[0m "${test.message.substring(0, 50)}${test.message.length > 50 ? '...' : ''}"`);
-
-  // Show additional info for BUILD mode
-  if (mode === 'build') {
-    const subtype = detectBuildSubtype(test.message);
-    console.log(`  \x1b[2m└─ subtype: ${subtype}\x1b[0m`);
-  }
-
-  // Show additional info for ASK mode
-  if (mode === 'ask') {
-    const chunks = detectAskChunkTypes(test.message);
-    if (chunks) {
-      console.log(`  \x1b[2m└─ chunk hints: ${chunks.join(', ')}\x1b[0m`);
-    }
-  }
-
-  if (ok) passed++;
-  else failed++;
+console.log('\nCANCELLATION TESTS:');
+for (const test of CANCEL_TESTS) {
+  const result = isCancellation(test.message);
+  const ok = result === test.expected;
+  const icon = ok ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m';
+  console.log(`${icon} "${test.message}" → ${result} (expected: ${test.expected})`);
+  if (ok) passed++; else failed++;
 }
 
 console.log('\n' + '─'.repeat(70));
