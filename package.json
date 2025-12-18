@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "airtable": "^0.12.2",
+    "@supabase/supabase-js": "^2.87.1",
+    "dotenv": "^17.2.3",
     "next": "15.4.1",
     "openai": "^5.10.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

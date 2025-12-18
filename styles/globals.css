@@ -2,19 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;400&family=Inter:wght@400;500;700&display=swap');
 
 :root {
-  --background: #ffffff;
+  --background: #d5d5d5;
   --foreground: #171717;
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
@@ -27,9 +16,9 @@ body {
 .chat-demo-window {
   display: flex;
   flex-direction: column;
-  min-height: 60vh;
-  max-height: 75vh;
-  height: 65vh;
+  min-height: 80vh;
+  max-height: 85vh;
+  height: 85vh;
   background: #2F2F2F;
 }
 
@@ -44,11 +33,11 @@ body {
   font-weight: bold;
 }
 .yaml-value {
-  color: #D62E74;
+  color: #E96245;
 }
 .bot-bubble {
   background: #171717;
-  color: #D62E74;
+  color: #E96245;
   font-weight: 500;
   box-shadow: 0 0 8px #17171755;
 }
@@ -99,72 +88,196 @@ h1 .text-2xl {
   cursor: not-allowed;
 }
 
-/* --- 8-bit Floating Blocks Background --- */
-.bg-green-gradient {
-  /* Light green vertical gradient */
-  background: linear-gradient(180deg, #e6ffe6 0%, #b6fcb6 100%);
-  min-height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
+/* ========================================
+   MODE SYSTEM STYLES
+   ======================================== */
+
+/* Chat window - new unified style */
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 60vh;
+  max-height: 75vh;
+  background: #1a1a1a;
+  border-color: #333;
 }
 
-.floating-blocks {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
+.chat-messages {
+  flex: 1 1 0%;
+  overflow-y: auto;
 }
 
-.pixel-block {
-  position: absolute;
-  /* 8-bit sizes, set via inline style or JS: 16px, 24px, 32px, 40px, 48px, 56px, 64px */
-  width: 32px;
-  height: 32px;
-  background: #a3e6a3; /* Slightly darker green than bg */
-  box-shadow:
-    inset 0 2px 6px #7fc97f,
-    inset 0 -2px 8px #6bb36b,
-    0 1px 0 #b6fcb6;
-  image-rendering: pixelated;
-  border-radius: 0;
-  /* Crisp edges */
-  outline: 1px solid #b6fcb6;
-  opacity: 0.85;
-  transition: opacity 0.3s;
+/* Mode selector buttons */
+.mode-selector {
+  display: flex;
+  gap: 0.5rem;
 }
 
-/* Animation keyframes for upward floating */
-@keyframes float-up {
-  0% {
-    transform: translateY(100vh);
-    opacity: 0.7;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-64px);
-    opacity: 0.2;
-  }
+.mode-btn {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
-/* Example: JS should set animation-duration (15-30s) and left/top/size per block */
-.pixel-block {
-  animation-name: float-up;
-  animation-timing-function: linear;
-  animation-iteration-count: 1;
+.mode-inactive {
+  background: #374151;
+  color: #9CA3AF;
 }
 
-/* Optional: pixelated look for all blocks */
-.pixel-block, .floating-blocks {
-  image-rendering: pixelated;
+.mode-inactive:hover {
+  background: #4B5563;
+  color: #D1D5DB;
 }
 
-/* --- End 8-bit Floating Blocks Background --- */
+/* ASK mode - Blue */
+.mode-blue-active {
+  background: #1D4ED8;
+  color: white;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+}
+
+.mode-btn-blue {
+  background: #2563EB;
+  color: white;
+}
+.mode-btn-blue:hover:not(:disabled) {
+  background: #1D4ED8;
+}
+
+/* BUILD mode - Green */
+.mode-green-active {
+  background: #059669;
+  color: white;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+}
+
+.mode-btn-green {
+  background: #10B981;
+  color: white;
+}
+.mode-btn-green:hover:not(:disabled) {
+  background: #059669;
+}
+
+/* ENRICH mode - Orange */
+.mode-orange-active {
+  background: #D97706;
+  color: white;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+.mode-btn-orange {
+  background: #F59E0B;
+  color: #171717;
+}
+.mode-btn-orange:hover:not(:disabled) {
+  background: #D97706;
+}
+
+/* Mode-specific chat window borders */
+.chat-window.mode-blue {
+  border-color: #3B82F6;
+}
+
+.chat-window.mode-green {
+  border-color: #10B981;
+}
+
+.chat-window.mode-orange {
+  border-color: #F59E0B;
+}
+
+/* Mode shortcut indicator */
+.mode-shortcut {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Mode tag on messages */
+.mode-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  margin-right: 0.5rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.mode-tag-ask {
+  background: #1D4ED8;
+  color: white;
+}
+
+.mode-tag-build {
+  background: #059669;
+  color: white;
+}
+
+.mode-tag-enrich {
+  background: #D97706;
+  color: white;
+}
+
+/* System messages */
+.system-message {
+  background: #374151;
+  color: #D1D5DB;
+  font-style: italic;
+  border-left: 3px solid #6B7280;
+}
+
+/* Bot bubble updates for new system */
+.bot-bubble {
+  background: #1f1f1f;
+  color: #E5E7EB;
+  font-weight: 400;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* User message updates */
+.user-message {
+  background: #374151;
+  color: #fff;
+  font-weight: 400;
+}
+
+/* List preview styles */
+.list-preview {
+  max-height: 400px;
+}
+
+.list-preview-items {
+  scrollbar-width: thin;
+  scrollbar-color: #4B5563 #1f1f1f;
+}
+
+.list-preview-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list-preview-items::-webkit-scrollbar-track {
+  background: #1f1f1f;
+}
+
+.list-preview-items::-webkit-scrollbar-thumb {
+  background: #4B5563;
+  border-radius: 3px;
+}
+
+/* Text color utilities for mode indicators */
+.text-blue-400 {
+  color: #60A5FA;
+}
+
+.text-green-400 {
+  color: #34D399;
+}
+
+.text-orange-400 {
+  color: #FBBF24;
+}
