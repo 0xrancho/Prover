@@ -1,7 +1,7 @@
 /**
- * PROSPECTS PANEL
+ * OPPORTUNITIES PANEL
  *
- * Collapsible panel showing prospects in table or kanban view
+ * Collapsible panel showing opportunities in table or kanban view
  */
 
 import { useState, useEffect } from 'react';
@@ -17,8 +17,8 @@ const STATUS_COLORS = {
   lost: 'bg-red-600'
 };
 
-export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich }) {
-  const [prospects, setProspects] = useState([]);
+export default function OpportunitiesPanel({ workspaceId, isOpen, onClose, onEnrich }) {
+  const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState('table'); // 'table' | 'kanban'
   const [sortBy, setSortBy] = useState('created_at');
@@ -26,20 +26,20 @@ export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich 
 
   useEffect(() => {
     if (isOpen && workspaceId) {
-      fetchProspects();
+      fetchOpportunities();
     }
   }, [isOpen, workspaceId, sortBy, sortOrder]);
 
-  const fetchProspects = async () => {
+  const fetchOpportunities = async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/prospects?workspace_id=${workspaceId}&sort_by=${sortBy}&sort_order=${sortOrder}`
+        `/api/opportunities?workspace_id=${workspaceId}&sort_by=${sortBy}&sort_order=${sortOrder}`
       );
       const data = await res.json();
-      setProspects(data.prospects || []);
+      setOpportunities(data.opportunities || []);
     } catch (error) {
-      console.error('Failed to fetch prospects:', error);
+      console.error('Failed to fetch opportunities:', error);
     } finally {
       setLoading(false);
     }
@@ -47,13 +47,12 @@ export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich 
 
   const updateStatus = async (id, newStatus) => {
     try {
-      await fetch('/api/prospects', {
+      await fetch('/api/opportunities', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus })
       });
-      // Update local state
-      setProspects(prev =>
+      setOpportunities(prev =>
         prev.map(p => (p.id === id ? { ...p, status: newStatus } : p))
       );
     } catch (error) {
@@ -61,11 +60,11 @@ export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich 
     }
   };
 
-  const deleteProspect = async (id) => {
-    if (!confirm('Delete this prospect?')) return;
+  const deleteOpportunity = async (id) => {
+    if (!confirm('Delete this opportunity?')) return;
     try {
-      await fetch(`/api/prospects?id=${id}`, { method: 'DELETE' });
-      setProspects(prev => prev.filter(p => p.id !== id));
+      await fetch(`/api/opportunities?id=${id}`, { method: 'DELETE' });
+      setOpportunities(prev => prev.filter(p => p.id !== id));
     } catch (error) {
       console.error('Failed to delete:', error);
     }
@@ -78,8 +77,8 @@ export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich 
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold text-white">Prospects</h2>
-          <span className="text-sm text-gray-400">({prospects.length})</span>
+          <h2 className="text-lg font-semibold text-white">Opportunities</h2>
+          <span className="text-sm text-gray-400">({opportunities.length})</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -133,23 +132,23 @@ export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich 
           <div className="flex items-center justify-center h-32">
             <div className="text-gray-400">Loading...</div>
           </div>
-        ) : prospects.length === 0 ? (
+        ) : opportunities.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32 text-gray-400">
-            <p>No prospects yet</p>
+            <p>No opportunities yet</p>
             <p className="text-sm mt-1">Create leads through chat</p>
           </div>
         ) : view === 'table' ? (
           <TableView
-            prospects={prospects}
+            opportunities={opportunities}
             onUpdateStatus={updateStatus}
-            onDelete={deleteProspect}
+            onDelete={deleteOpportunity}
             onEnrich={onEnrich}
           />
         ) : (
           <KanbanView
-            prospects={prospects}
+            opportunities={opportunities}
             onUpdateStatus={updateStatus}
-            onDelete={deleteProspect}
+            onDelete={deleteOpportunity}
             onEnrich={onEnrich}
           />
         )}
@@ -158,7 +157,7 @@ export default function ProspectsPanel({ workspaceId, isOpen, onClose, onEnrich 
   );
 }
 
-function TableView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
+function TableView({ opportunities, onUpdateStatus, onDelete, onEnrich }) {
   return (
     <table className="w-full text-sm">
       <thead>
@@ -171,7 +170,7 @@ function TableView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
         </tr>
       </thead>
       <tbody>
-        {prospects.map((p) => (
+        {opportunities.map((p) => (
           <tr key={p.id} className="border-b border-gray-800 hover:bg-gray-800/50">
             <td className="py-3">
               <div className="font-medium text-white">{p.company_name}</div>
@@ -234,13 +233,13 @@ function TableView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
   );
 }
 
-function KanbanView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
+function KanbanView({ opportunities, onUpdateStatus, onDelete, onEnrich }) {
   const columns = STATUS_OPTIONS.slice(0, 4); // Show first 4 statuses
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
       {columns.map(status => {
-        const items = prospects.filter(p => p.status === status);
+        const items = opportunities.filter(p => p.status === status);
         return (
           <div key={status} className="flex-shrink-0 w-56">
             <div className="flex items-center gap-2 mb-3">

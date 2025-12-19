@@ -1,16 +1,17 @@
 /**
- * PROSPECTS VIEW
+ * OPPORTUNITIES VIEW
  *
- * Inline view showing prospects in table or kanban format
+ * Inline view showing opportunities in table or kanban format
  * Replaces the slide-out panel with an in-place view
  */
 
 import { useState, useEffect } from 'react';
 
-const STATUS_OPTIONS = ['new', 'contacted', 'qualified', 'proposal', 'won', 'lost'];
+const STATUS_OPTIONS = ['new', 'contacted', 'qualified', 'proposal', 'active', 'won', 'lost'];
 
 const STATUS_COLORS = {
   new: 'bg-gray-600',
+  active: 'bg-cyan-600',
   contacted: 'bg-blue-600',
   qualified: 'bg-yellow-600',
   proposal: 'bg-purple-600',
@@ -18,8 +19,8 @@ const STATUS_COLORS = {
   lost: 'bg-red-600'
 };
 
-export default function ProspectsView({ workspaceId, onEnrich }) {
-  const [prospects, setProspects] = useState([]);
+export default function OpportunitiesView({ workspaceId, onEnrich }) {
+  const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState('table'); // 'table' | 'kanban'
   const [sortBy, setSortBy] = useState('created_at');
@@ -27,20 +28,20 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
 
   useEffect(() => {
     if (workspaceId) {
-      fetchProspects();
+      fetchOpportunities();
     }
   }, [workspaceId, sortBy, sortOrder]);
 
-  const fetchProspects = async () => {
+  const fetchOpportunities = async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/prospects?workspace_id=${workspaceId}&sort_by=${sortBy}&sort_order=${sortOrder}`
+        `/api/opportunities?workspace_id=${workspaceId}&sort_by=${sortBy}&sort_order=${sortOrder}`
       );
       const data = await res.json();
-      setProspects(data.prospects || []);
+      setOpportunities(data.opportunities || []);
     } catch (error) {
-      console.error('Failed to fetch prospects:', error);
+      console.error('Failed to fetch opportunities:', error);
     } finally {
       setLoading(false);
     }
@@ -48,12 +49,12 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      await fetch('/api/prospects', {
+      await fetch('/api/opportunities', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus })
       });
-      setProspects(prev =>
+      setOpportunities(prev =>
         prev.map(p => (p.id === id ? { ...p, status: newStatus } : p))
       );
     } catch (error) {
@@ -61,11 +62,11 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
     }
   };
 
-  const deleteProspect = async (id) => {
-    if (!confirm('Delete this prospect?')) return;
+  const deleteOpportunity = async (id) => {
+    if (!confirm('Delete this opportunity?')) return;
     try {
-      await fetch(`/api/prospects?id=${id}`, { method: 'DELETE' });
-      setProspects(prev => prev.filter(p => p.id !== id));
+      await fetch(`/api/opportunities?id=${id}`, { method: 'DELETE' });
+      setOpportunities(prev => prev.filter(p => p.id !== id));
     } catch (error) {
       console.error('Failed to delete:', error);
     }
@@ -76,8 +77,8 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold text-white">Prospects</h2>
-          <span className="text-sm text-gray-400">({prospects.length})</span>
+          <h2 className="text-lg font-semibold text-white">Opportunities</h2>
+          <span className="text-sm text-gray-400">({opportunities.length})</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -115,7 +116,7 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
 
           {/* Refresh */}
           <button
-            onClick={fetchProspects}
+            onClick={fetchOpportunities}
             className="p-1.5 text-gray-400 hover:text-white rounded hover:bg-gray-800"
             title="Refresh"
           >
@@ -133,28 +134,28 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
           <div className="flex items-center justify-center h-48">
             <div className="text-gray-400">Loading...</div>
           </div>
-        ) : prospects.length === 0 ? (
+        ) : opportunities.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-gray-400">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4 opacity-50">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            <p className="text-lg">No prospects yet</p>
+            <p className="text-lg">No opportunities yet</p>
             <p className="text-sm mt-1 text-gray-500">Create leads through the Chat view</p>
           </div>
         ) : view === 'table' ? (
           <TableView
-            prospects={prospects}
+            opportunities={opportunities}
             onUpdateStatus={updateStatus}
-            onDelete={deleteProspect}
+            onDelete={deleteOpportunity}
             onEnrich={onEnrich}
           />
         ) : (
           <KanbanView
-            prospects={prospects}
+            opportunities={opportunities}
             onUpdateStatus={updateStatus}
-            onDelete={deleteProspect}
+            onDelete={deleteOpportunity}
             onEnrich={onEnrich}
           />
         )}
@@ -163,25 +164,28 @@ export default function ProspectsView({ workspaceId, onEnrich }) {
   );
 }
 
-function TableView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
+function TableView({ opportunities, onUpdateStatus, onDelete, onEnrich }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-gray-400 border-b border-gray-700">
+            <th className="pb-3 font-medium">Opportunity</th>
             <th className="pb-3 font-medium">Company</th>
             <th className="pb-3 font-medium">Contact</th>
-            <th className="pb-3 font-medium">Industry</th>
             <th className="pb-3 font-medium">Score</th>
             <th className="pb-3 font-medium">Status</th>
             <th className="pb-3 font-medium"></th>
           </tr>
         </thead>
         <tbody>
-          {prospects.map((p) => (
+          {opportunities.map((p) => (
             <tr key={p.id} className="border-b border-gray-800 hover:bg-gray-800/50">
               <td className="py-3">
-                <div className="font-medium text-white">{p.company_name}</div>
+                <div className="font-medium text-white">{p.opportunity_name || p.company_name}</div>
+              </td>
+              <td className="py-3">
+                <div className="text-gray-300">{p.company_name}</div>
                 {p.website_url && (
                   <a
                     href={p.website_url}
@@ -198,9 +202,6 @@ function TableView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
                 {p.contact_title && (
                   <div className="text-xs text-gray-500">{p.contact_title}</div>
                 )}
-              </td>
-              <td className="py-3">
-                <span className="text-gray-400 text-xs">{p.industry || '-'}</span>
               </td>
               <td className="py-3">
                 <span className={`font-medium ${
@@ -252,13 +253,13 @@ function TableView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
   );
 }
 
-function KanbanView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
-  const columns = STATUS_OPTIONS.slice(0, 4); // Show first 4 statuses
+function KanbanView({ opportunities, onUpdateStatus, onDelete, onEnrich }) {
+  const columns = STATUS_OPTIONS.slice(0, 5); // Show first 5 statuses (through Active)
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
       {columns.map(status => {
-        const items = prospects.filter(p => p.status === status);
+        const items = opportunities.filter(p => p.status === status);
         return (
           <div key={status} className="flex-shrink-0 w-60">
             <div className="flex items-center gap-2 mb-3">
@@ -273,12 +274,10 @@ function KanbanView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
                   key={p.id}
                   className="bg-gray-800 rounded-lg p-3 border border-gray-700 hover:border-gray-600 transition-colors"
                 >
-                  <div className="font-medium text-white text-sm">{p.company_name}</div>
+                  <div className="font-medium text-white text-sm">{p.opportunity_name || p.company_name}</div>
+                  <div className="text-xs text-gray-400 mt-1">{p.company_name}</div>
                   {p.contact_name && (
-                    <div className="text-xs text-gray-400 mt-1">{p.contact_name}</div>
-                  )}
-                  {p.industry && (
-                    <div className="text-xs text-gray-500 mt-0.5">{p.industry}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{p.contact_name}</div>
                   )}
                   <div className="flex items-center justify-between mt-3">
                     <span className={`text-xs font-medium ${
@@ -313,7 +312,7 @@ function KanbanView({ prospects, onUpdateStatus, onDelete, onEnrich }) {
               ))}
               {items.length === 0 && (
                 <div className="text-center py-8 text-gray-600 text-xs">
-                  No prospects
+                  No opportunities
                 </div>
               )}
             </div>

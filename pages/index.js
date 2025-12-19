@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import ListPreview from '../components/ListPreview';
-import ProspectsView from '../components/ProspectsView';
+import OpportunitiesView from '../components/OpportunitiesView';
 import { useAuth } from '../lib/AuthContext';
 
 const MODES = {
@@ -21,7 +21,7 @@ export default function Home() {
   const [mode, setMode] = useState('ask');
   const [buildPreview, setBuildPreview] = useState(null);
   const [pendingLead, setPendingLead] = useState(null);
-  const [activeView, setActiveView] = useState('chat'); // 'chat' | 'prospects'
+  const [activeView, setActiveView] = useState('chat'); // 'chat' | 'opportunities'
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -255,7 +255,7 @@ export default function Home() {
         <title>Prover</title>
       </Head>
 
-      <div className="max-w-3xl mx-auto p-4 pt-8">
+      <div className={`mx-auto p-4 pt-8 ${activeView === 'opportunities' ? 'max-w-6xl' : 'max-w-3xl'}`}>
         {/* Header */}
         <header className="mb-6 flex justify-between items-start">
           <div className="flex items-center gap-4">
@@ -284,9 +284,9 @@ export default function Home() {
                   Chat
                 </button>
                 <button
-                  onClick={() => setActiveView('prospects')}
+                  onClick={() => setActiveView('opportunities')}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    activeView === 'prospects'
+                    activeView === 'opportunities'
                       ? 'bg-gray-700 text-white'
                       : 'text-gray-400 hover:text-gray-300'
                   }`}
@@ -295,7 +295,7 @@ export default function Home() {
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <path d="M3 9h18M9 21V9" />
                   </svg>
-                  Prospects
+                  Opportunities
                 </button>
               </div>
             )}
@@ -458,8 +458,8 @@ export default function Home() {
             </div>
           </>
         ) : (
-          /* Prospects View */
-          <ProspectsView
+          /* Opportunities View */
+          <OpportunitiesView
             workspaceId={workspace?.id}
             onEnrich={(companyName) => {
               setActiveView('chat');

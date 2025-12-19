@@ -8,7 +8,7 @@ const MODES = [
     description: 'Query your knowledge base',
     color: 'blue',
     icon: '?',
-    placeholder: 'Ask about prospects, proof points, ICP fit...'
+    placeholder: 'Ask about opportunities, proof points, ICP fit...'
   },
   {
     id: 'build',

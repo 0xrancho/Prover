@@ -1,17 +1,17 @@
 /**
- * PROSPECTS API
+ * OPPORTUNITIES API
  *
- * CRUD operations for prospects in Supabase
+ * CRUD operations for opportunities in Supabase
  * All operations are workspace-scoped
  */
 
 import {
-  getProspects,
-  createProspect,
-  updateProspect,
-  deleteProspect,
-  getProspectStats
-} from '../../lib/prospects.js';
+  getOpportunities,
+  createOpportunity,
+  updateOpportunity,
+  deleteOpportunity,
+  getOpportunityStats
+} from '../../lib/opportunities.js';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: `Method ${method} Not Allowed` });
     }
   } catch (error) {
-    console.error('[PROSPECTS API] Error:', error);
+    console.error('[OPPORTUNITIES API] Error:', error);
     return res.status(500).json({
       error: 'Internal server error',
       details: error.message
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 }
 
 /**
- * GET /api/prospects
+ * GET /api/opportunities
  * Query params: workspace_id, status, sort_by, sort_order, limit
  */
 async function handleGet(req, res) {
@@ -59,11 +59,11 @@ async function handleGet(req, res) {
 
   // If just requesting stats
   if (stats_only === 'true') {
-    const stats = await getProspectStats(workspace_id);
+    const stats = await getOpportunityStats(workspace_id);
     return res.status(200).json({ stats });
   }
 
-  const prospects = await getProspects(workspace_id, {
+  const opportunities = await getOpportunities(workspace_id, {
     status: status || undefined,
     sortBy: sort_by,
     sortOrder: sort_order,
@@ -71,37 +71,37 @@ async function handleGet(req, res) {
   });
 
   return res.status(200).json({
-    prospects,
-    total: prospects.length,
+    opportunities,
+    total: opportunities.length,
     workspace_id
   });
 }
 
 /**
- * POST /api/prospects
- * Body: workspace_id, company_name, ...prospect data
+ * POST /api/opportunities
+ * Body: workspace_id, company_name, ...opportunity data
  */
 async function handlePost(req, res) {
-  const { workspace_id, ...prospectData } = req.body;
+  const { workspace_id, ...opportunityData } = req.body;
 
   if (!workspace_id) {
     return res.status(400).json({ error: 'workspace_id is required' });
   }
 
-  if (!prospectData.company_name) {
+  if (!opportunityData.company_name) {
     return res.status(400).json({ error: 'company_name is required' });
   }
 
-  const prospect = await createProspect(workspace_id, prospectData);
+  const opportunity = await createOpportunity(workspace_id, opportunityData);
 
   return res.status(201).json({
-    prospect,
-    message: `Created ${prospect.company_name}`
+    opportunity,
+    message: `Created ${opportunity.company_name}`
   });
 }
 
 /**
- * PATCH /api/prospects
+ * PATCH /api/opportunities
  * Body: id, ...fields to update
  */
 async function handlePatch(req, res) {
@@ -111,16 +111,16 @@ async function handlePatch(req, res) {
     return res.status(400).json({ error: 'id is required' });
   }
 
-  const prospect = await updateProspect(id, updateData);
+  const opportunity = await updateOpportunity(id, updateData);
 
   return res.status(200).json({
-    prospect,
-    message: `Updated ${prospect.company_name}`
+    opportunity,
+    message: `Updated ${opportunity.company_name}`
   });
 }
 
 /**
- * DELETE /api/prospects
+ * DELETE /api/opportunities
  * Query params: id
  */
 async function handleDelete(req, res) {
@@ -130,10 +130,10 @@ async function handleDelete(req, res) {
     return res.status(400).json({ error: 'id is required' });
   }
 
-  await deleteProspect(id);
+  await deleteOpportunity(id);
 
   return res.status(200).json({
-    message: 'Prospect deleted',
+    message: 'Opportunity deleted',
     id
   });
 }
